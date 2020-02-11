@@ -1,3 +1,9 @@
+import os
+import subprocess
+
+from buildin import build_in
+
+
 def parse_input(line):
     """
     delete duplicate inline characters like: ' ', '\t'
@@ -21,3 +27,20 @@ def parse_input(line):
                     i += 1
 
     return ''.join(res)
+
+
+def parse_args(args):
+    res = []
+    sub = []
+    for item in args:
+        if item != '|':
+            sub.append(item)
+        else:
+            res.append(sub)
+            sub = []
+    if sub:
+        res.append(sub)
+    return res
+
+
+
