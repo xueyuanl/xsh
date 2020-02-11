@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 from buildin import build_in
 
@@ -12,37 +13,51 @@ def sub_exec(args):
         exit()  # still in child process, needs an extra exit()
 
 
-def pipeline_subprocess(args_list):
-    """
-    this is a version which implement shell pipeline function using subprocess package
-    :param args_list: [['ls', '-ls'], ['grep', '11']]
-    :return: bool
-    """
-    length = len(args_list)
-    s_in = os.dup(0)
-    s_out = os.dup(1)
-    fdin = os.dup(s_in)
-    for i in range(length):
-        os.dup2(fdin, 0)
-        os.close(fdin)
-        if i == length - 1:
-            fdout = os.dup(s_out)
-        else:
-            fdin, fdout = os.pipe()
-        os.dup2(fdout, 1)
-        os.close(fdout)
+def sub_process(args):
+    try:
+        subprocess.run(args)
+    except FileNotFoundError:
+        print('xsh: {}: Command not found'.format(args[0]))
 
-        args = args_list[i]
+
+def execute_bak(args_list):
+    length = len(args_list)
+    if length == 1:  # no pipeline case
+        args = args_list[0]
         if not args[0]:
             return True
         # exec build in command first
         if args[0] in build_in:
-            build_in[args[0]](args)
+            return build_in[args[0]](args)
         else:
-            subprocess.run(args)
-            # return launch(args)
-    os.dup2(s_in, 0)
-    os.dup2(s_out, 1)
-    os.close(s_in)
-    os.close(s_out)
+            pid = os.fork()
+            sub_exec(args) if pid == 0 else os.waitpid(pid, os.WUNTRACED)
+            return True
+    else:
+        new_in, new_out = 0, 0
+        old_in, old_out = 0, 0
+        for i in range(length):
+            if i < length - 1:  # if not the last command, create pipe
+                new_in, new_out = os.pipe()
+
+            pid = os.fork()
+            if pid == 0:
+                if i < length - 1:
+                    os.dup2(new_out, sys.stdout.fileno())  # point current out to new pipe out
+                    os.close(new_out)
+                    os.close(new_in)  # do not need it, close
+                if i > 0:
+                    os.dup2(old_in, sys.stdin.fileno())  # point current in to new pipe in, to get prev command out
+                    os.close(old_in)
+                    os.close(old_out)  # do not need it, close
+                args = args_list[i]
+                sub_exec(args)
+            else:  # in father process
+                if i > 0:
+                    os.close(old_out)
+                    os.close(old_in)
+                if i < length - 1:  # if not the last command, copy the pipeline, prepare for next child process
+                    old_in, old_out = new_in, new_out
+
+                os.waitpid(pid, os.WUNTRACED)
     return True

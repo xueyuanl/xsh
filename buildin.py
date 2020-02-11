@@ -20,4 +20,9 @@ def xsh_exit(args):
     return False
 
 
-build_in = {'cd': xsh_cd, 'exit': xsh_exit, 'pwd': xsh_pwd}
+def xsh_history(args):
+    print('to do')
+    return True
+
+
+build_in = {'cd': xsh_cd, 'exit': xsh_exit, 'pwd': xsh_pwd, 'history': xsh_history}
