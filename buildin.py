@@ -4,6 +4,8 @@ import os
 def xsh_cd(args):
     try:
         os.chdir(args[1])
+    except IndexError:
+        os.chdir(os.environ['HOME'])
     except FileNotFoundError:
         print('xsh: No such file or directory: \'{}\''.format(args[1]))
     return True

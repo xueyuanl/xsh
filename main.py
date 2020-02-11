@@ -12,6 +12,7 @@ def launch(args):
             os.execvp(args[0], args)
         except FileNotFoundError:
             print('xsh: {}: Command not found'.format(args[0]))
+            exit()  # still in child process, needs an extra exit()
     else:  # parent process
         os.waitpid(pid, os.WUNTRACED)
     return True
@@ -30,7 +31,8 @@ def execute(args):
 def loop():
     status = True
     while status:
-        line = parse_input(input('> ').strip())
+        prompt = os.getcwd() + ' > '
+        line = parse_input(input(prompt).strip())
         args = line.split(' ')  # args value sample: ['ls', '-la']
         status = execute(args)
 
