@@ -1,5 +1,7 @@
 import os
 
+from constants import HISTORY
+
 
 def xsh_cd(args):
     try:
@@ -21,7 +23,10 @@ def xsh_exit(args):
 
 
 def xsh_history(args):
-    print('to do')
+    history_path = os.path.join(os.environ['HOME'], HISTORY)
+    with open(history_path, 'r') as f:
+        for line in f:
+            print(line.strip())
     return True
 
 

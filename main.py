@@ -2,6 +2,8 @@
 import os
 
 from buildin import build_in
+from constants import HISTORY
+from file import add_history
 from process import sub_process
 from utils import parse_input, parse_args
 
@@ -26,7 +28,7 @@ def execute(args_list):
             return True
         # exec build in command first
         if args[0] in build_in:
-            return False if not build_in[args[0]](args) else None
+            if not build_in[args[0]](args): return False
         else:
             sub_process(args)
     os.dup2(std_in, 0)
@@ -41,12 +43,20 @@ def loop():
     while status:
         prompt = os.getcwd() + ' > '
         line = parse_input(input(prompt).strip())
+        add_history(line)
         args = line.split(' ')  # args value sample: ['ls', '-la']
         args_list = parse_args(args)
         status = execute(args_list)
 
 
+def init():
+    history_path = os.path.join(os.environ['HOME'], HISTORY)
+    if not os.path.exists(history_path):
+        os.system(r'touch {}'.format(history_path))
+
+
 def main():
+    init()
     loop()
 
 

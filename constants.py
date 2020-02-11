@@ -1,0 +1,1 @@
+HISTORY = '.xsh_history'
