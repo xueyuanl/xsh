@@ -1,8 +1,7 @@
 import os
-import subprocess
 
-from buildin import build_in
-
+from color.conf import color
+import socket
 
 def parse_input(line):
     """
@@ -43,4 +42,6 @@ def parse_args(args):
     return res
 
 
-
+def parse_prompt():
+    s = '{}@{} {}{}'.format(os.getlogin(), socket.gethostname(), os.getcwd(), ' > ')
+    return color.prompt(s)

@@ -5,7 +5,8 @@ from buildin import build_in
 from constants import HISTORY
 from file import add_history
 from process import sub_process
-from utils import parse_input, parse_args
+from utils import parse_input, parse_args, parse_prompt
+
 
 
 def execute(args_list):
@@ -41,7 +42,7 @@ def execute(args_list):
 def loop():
     status = True
     while status:
-        prompt = os.getcwd() + ' > '
+        prompt = parse_prompt()
         line = parse_input(input(prompt).strip())
         add_history(line)
         args = line.split(' ')  # args value sample: ['ls', '-la']
