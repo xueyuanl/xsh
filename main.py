@@ -6,6 +6,7 @@ from constants import HISTORY
 from file import add_history
 from process import sub_process
 from utils import parse_input, parse_args, parse_prompt
+import signal
 
 
 
@@ -51,6 +52,7 @@ def loop():
 
 
 def init():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     history_path = os.path.join(os.environ['HOME'], HISTORY)
     if not os.path.exists(history_path):
         os.system(r'touch {}'.format(history_path))
